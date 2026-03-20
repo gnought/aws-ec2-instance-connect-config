@@ -1,17 +1,19 @@
 target "default" {
-  context         = "docker"
-  contexts        = { project = "." }
-  pull            = true
+  context  = "docker"
+  contexts = { project = "." }
+  pull     = true
 }
 target "deb" {
-  inherits   = ["default"]
-  dockerfile = "ubuntu/Dockerfile"
-  target     = "deb"
-  output     = ["./out"]
+  inherits        = ["default"]
+  dockerfile      = "ubuntu/Dockerfile"
+  no-cache-filter = ["test"]
+  target          = "deb"
+  output          = ["./out"]
 }
 target "rpm" {
-  inherits   = ["default"]
-  dockerfile = "generic/Dockerfile"
-  target     = "rpm"
-  output     = ["./out"]
+  inherits        = ["default"]
+  dockerfile      = "generic/Dockerfile"
+  no-cache-filter = ["test"]
+  target          = "rpm"
+  output          = ["./out"]
 }
