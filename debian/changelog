@@ -2,13 +2,13 @@ ec2-instance-connect (1.1.19) xenial; urgency=high
 
   * Remove hostkey harvesting.
 
- -- Vishrutha Konappa Reddy <vkreddy@amazon.com>  Wed, Jul 9 2022 17:30:00 -0400
+ -- Vishrutha Konappa Reddy <vkreddy@amazon.com>  Sat, 09 Jul 2022 17:30:00 -0400
 
 ec2-instance-connect (1.1.18) xenial; urgency=high
 
   * Update curl command to not fail silently on HTTP server error.
 
- -- Vishrutha Konappa Reddy <vkreddy@amazon.com>  Thu, Jun 9 2022 14:30:00 -0400
+ -- Vishrutha Konappa Reddy <vkreddy@amazon.com>  Thu, 09 Jun 2022 14:30:00 -0400
 
 ec2-instance-connect (1.1.17) xenial; urgency=high
 
@@ -16,14 +16,14 @@ ec2-instance-connect (1.1.17) xenial; urgency=high
   * Only verify CA certificates that aren't already trusted in /etc/ssl/certs.
   * OpenSSL 3.0.2 also changes the formatting of the SHA1 fingerprint of an x509 certificate. Switch to a case insensitive match to be backwards and forwards compatible between OpenSSL versions.
 
- -- Jacob Meisler <meislerj@amazon.com>  Mon, May 9 2022 12:30:00 -0400
+ -- Jacob Meisler <meislerj@amazon.com>  Mon, 09 May 2022 12:30:00 -0400
 
 ec2-instance-connect (1.1.15) xenial; urgency=high
 
   * Change EIC Hostkeys Harvesting to be asynchronous from SSHD to improve instance boot time
   * Rename and enable ec2-instance-connect-harvest-hostkeys.service. Remove pointer to old ec2-instance-connect.service.
 
- -- Vishrutha Konappa Reddy <vkreddy@amazon.com>  Thu, Sep 9 2021 12:50:55 -0400
+ -- Vishrutha Konappa Reddy <vkreddy@amazon.com>  Thu, 01 Sep 2021 12:50:55 -0400
 
 ec2-instance-connect (1.1.14) xenial; urgency=high
 
