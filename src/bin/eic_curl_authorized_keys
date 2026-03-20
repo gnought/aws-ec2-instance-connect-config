@@ -22,6 +22,10 @@ umask 077
 
 IMDS="http://169.254.169.254/latest/meta-data"
 
+log() {
+    /usr/bin/logger -i -p authpriv.info "${1}"
+}
+
 # cURL wrapper to ensure we always use the desired flags
 curl_cmd () {
     /usr/bin/curl -s -f -m 1 -H "${1}" "${2}"
@@ -31,12 +35,12 @@ curl_cmd () {
 IMDS_TOKEN="$(/usr/bin/curl -s -f -m 1 -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 5")"
 token_exit="${?}"
 if [ "${token_exit}" -ne 0 ] ; then
-    /usr/bin/logger -i -p authpriv.info "EC2 Instance Connect failed to establish trust with Instance Metadata Service"
+    log "EC2 Instance Connect failed to establish trust with Instance Metadata Service"
     exit 255
 fi
 if [ -z "${IMDS_TOKEN}" ] ; then
     # Fast fail
-    /usr/bin/logger -i -p authpriv.info "EC2 Instance Connect failed to get a token to invoke Instance Metadata Service"
+    log "EC2 Instance Connect failed to get a token to invoke Instance Metadata Service"
     exit 255
 fi
 
@@ -56,16 +60,16 @@ if [ ! -f /sys/hypervisor/uuid ] ; then
     # Nitro, switch to DMI check
     if [ ! -f /sys/devices/virtual/dmi/id/board_asset_tag ] ; then
         # We're out of options.  This is definitely not an instance.
-        /usr/bin/logger -i -p authpriv.info "EC2 Instance Connect was invoked on a non-instance and will do nothing."
+        log "EC2 Instance Connect was invoked on a non-instance and will do nothing."
         exit 0
     elif [ "$(/bin/cat /sys/devices/virtual/dmi/id/board_asset_tag)" != "${instance}" ] ; then
         # The board_asset_tag does not match the instance id.  This is not a valid instance.
-        /usr/bin/logger -i -p authpriv.info "EC2 Instance Connect was invoked on a non-instance and will do nothing."
+        log "EC2 Instance Connect was invoked on a non-instance and will do nothing."
         exit 0
     fi
 elif [ "$(/usr/bin/cut -c1-3 < /sys/hypervisor/uuid)" != "ec2" ] ; then
     # Leading bytes are not "ec2"
-    /usr/bin/logger -i -p authpriv.info "EC2 Instance Connect was invoked on a non-instance and will do nothing."
+    log "EC2 Instance Connect was invoked on a non-instance and will do nothing."
     exit 0
 fi
 
@@ -75,7 +79,7 @@ OPENSSL=/usr/bin/openssl
 
 if [ -z "${1}" ] ; then
     # No user provided, not really anything to query for.  Fail out.
-    /usr/bin/logger -i -p authpriv.info "EC2 Instance Connect was invoked without a user to authorize and will do nothing."
+    log "EC2 Instance Connect was invoked without a user to authorize and will do nothing."
     exit 1
 fi
 
@@ -119,7 +123,7 @@ for valid_domain in amazonaws.com amazonaws.com.cn c2s.ic.gov sc2s.sgov.gov; do
     fi
 done
 if [ $is_domain_valid -eq 1 ]; then
-    /usr/bin/logger -i -p authpriv.info "EC2 Instance Connect found an invalid domain and will do nothing."
+    log "EC2 Instance Connect found an invalid domain and will do nothing."
     exit 255
 fi
 

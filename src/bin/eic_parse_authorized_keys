@@ -22,13 +22,17 @@ set -e
 # Set umask so only we can touch temp files
 umask 077
 
+log() {
+    /usr/bin/logger -i -p authpriv.info "${1}"
+}
+
 # Failure reporting & exit
 # Format: fail [is_debug] [message]
 fail () {
     if [ "${1}" = true ] ; then
         /bin/echo "${2}"
     else
-        /usr/bin/logger -i -p authpriv.info "${2}"
+        log "${2}"
     fi
     exit 1
 }
@@ -103,7 +107,7 @@ if [ $# -lt 1 ] ; then
     # Unit test log (ignored by sshd)
     /bin/echo "Usage: $0 [-x debug] [-r key read command] [-o openssl command] [-d tmpdir] [-s signer certificate] [-i instance id] [-c cname] [-a ca path] [-v ocsp dir] [-f key fingerprint]"
     # System log
-    /usr/bin/logger -i -p authpriv.info "Unable to run EC2 Instance Connect: insufficient args provided.  Please check your sshd configuration."
+    log "Unable to run EC2 Instance Connect: insufficient args provided. Please check your sshd configuration."
     exit 1
 fi
 
@@ -212,7 +216,7 @@ fi
 if [ -n "${expected_key+x}" ] ; then
     # An expected fingerprint was given
     if [ "${is_debug}" = false ] ; then
-        /usr/bin/logger -i -p authpriv.info "Querying EC2 Instance Connect keys for matching fingerprint: ${expected_key}"
+        log "Querying EC2 Instance Connect keys for matching fingerprint: ${expected_key}"
     fi
 fi
 
@@ -317,7 +321,7 @@ output=$(
                                     callermessage="${callermessage}, for IAM principal: ${caller}"
                                 fi
                                 if [ "${is_debug}" = false ] ; then
-                                    /usr/bin/logger -i -p authpriv.info "${callermessage}"
+                                    log "${callermessage}"
                                 fi
                                 # Return key to the ssh daemon
                                 /bin/echo "${key}"
