@@ -1,11 +1,18 @@
-FROM amazonlinux:2.0.20180622.1
-RUN yum install -y rpmbuild rpmdevtools make --skip-broken
+# syntax=docker/dockerfile:1
 
-COPY src /build/src
-COPY bin /build/bin
-COPY rpmsrc /build/rpmsrc
-COPY VERSION /build/VERSION
-COPY Makefile /build/Makefile
+FROM amazonlinux:latest AS build
+
+RUN --mount=type=cache,target=/var/cache/dnf,sharing=locked \
+    --mount=type=cache,target=/var/cache/yum,sharing=locked \
+    dnf install -y rpm-build rpmdevtools make systemd
+
+COPY --from=project --link src /build/src
+COPY --from=project --link bin /build/bin
+COPY --from=project --link rpmsrc /build/rpmsrc
+COPY --from=project --link Makefile VERSION /build/
+
 WORKDIR /build
 RUN make rpm
-CMD cp *.rpm /out
+
+FROM scratch AS rpm
+COPY --from=build /build/*.rpm /

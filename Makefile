@@ -1,9 +1,9 @@
-VERSION_FILE=./VERSION
-pkgver=$(shell cat $(VERSION_FILE))
+VERSION_FILE = ./VERSION
+pkgver = $(shell cat $(VERSION_FILE))
 version = $(firstword $(subst -, ,$(pkgver)))
 release = $(lastword $(subst -, ,$(pkgver)))
 
-default: clean ;
+default: clean
 
 deb:
 	./bin/make_deb.sh $(version) $(release)
@@ -11,22 +11,20 @@ deb:
 rpm:
 	./bin/make_rpm.sh $(version) $(release)
 
+bake = docker buildx bake --progress plain -f docker/docker-bake.hcl --provenance=false
+
 docker-build-rpm:
-	mkdir -p out
-	docker build -f docker/generic/Dockerfile . -t eic-rpm-builder -q
-	docker run -i --mount type=bind,source="$(shell pwd)/out",target=/out eic-rpm-builder
+	$(call bake) rpm
 
 docker-build-deb:
-	mkdir -p out
-	docker build -f docker/ubuntu/Dockerfile . -t eic-deb-builder -q
-	docker run -i --mount type=bind,source="$(shell pwd)/out",target=/out eic-deb-builder
+	$(call bake) deb
 
 docker-build:: docker-build-rpm docker-build-deb
 
 clean:
-	$(shell rm -rf ec2-instance-connect*)
-	$(shell rm -rf ./rpmbuild/SOURCES)
-	$(shell rm -rf ./deb-src)
-	$(shell rm -rf ./srpm_results)
-	$(shell rm -rf ./rpm_results)
-	$(shell rm -rf ./out)
+	rm -rf ec2-instance-connect*
+	rm -rf ./rpmbuild/SOURCES
+	rm -rf ./deb-src
+	rm -rf ./srpm_results
+	rm -rf ./rpm_results
+	rm -rf ./out
