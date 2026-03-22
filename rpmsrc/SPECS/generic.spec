@@ -134,6 +134,14 @@ fi
 
 
 %changelog
+* Sun Mar 23 2026 gnought <1684105+gnought@users.noreply.github.com> 1.1-19.gnought1
+- Backport Upstart support on Ubuntu 14
+- Backport SHA256 fingerprint support for older ssh-keygen
+- Backport to add logger tag on Upstart init system
+- Fix unit tests for newer OpenSSL versions
+- Build packages using Docker Bake
+- Update base build images
+- Correct date format in changelog
 * Sat Jul 9 2022 Vishrutha Konappa Reddy <vkreddy@amazon.com> 1.1-19
 - Remove hostkey harvesting.
 * Thu Jun 9 2022 Vishrutha Konappa Reddy <vkreddy@amazon.com> 1.1-18

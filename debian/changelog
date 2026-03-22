@@ -1,3 +1,15 @@
+ec2-instance-connect (1.1.19.gnought1) xenial; urgency=high
+
+  * Backport Upstart support on Ubuntu 14
+  * Backport SHA256 fingerprint support for older ssh-keygen
+  * Backport to add logger tag on Upstart init system
+  * Fix unit tests for newer OpenSSL versions
+  * Build packages using Docker Bake
+  * Update base build images
+  * Correct date format in changelog
+
+ -- gnought <1684105+gnought@users.noreply.github.com>  Mon, 23 Mar 2026 00:00:00 +0800
+
 ec2-instance-connect (1.1.19) xenial; urgency=high
 
   * Remove hostkey harvesting.
