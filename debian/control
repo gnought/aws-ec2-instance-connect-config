@@ -4,7 +4,7 @@ Priority: optional
 Standards-Version: 4.1.4
 Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
 XSBC-Original-Maintainer: Daniel Anderson <dnde@amazon.com>
-Build-Depends: debhelper (>= 10)
+Build-Depends: debhelper (>= 9)
 
 Package: ec2-instance-connect
 Architecture: all
@@ -20,5 +20,5 @@ Description: Configures ssh daemon to accept EC2 Instance Connect ssh keys
  will include them in the authorized keys list.
  .
  In addition, there is an agent that harvests instance ssh host keys and
- passes them back to the service.  This is for authentication purposes by
+ passes them back to the service. This is for authentication purposes by
  the EC2 console to open an in-browser ssh terminal connection.

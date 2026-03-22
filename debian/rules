@@ -4,4 +4,12 @@
 #DH_VERBOSE=1
 
 %:
-	dh $@ --with systemd
+	if status dmesg; then \
+		dh $@; \
+	else \
+		dh $@ --with systemd; \
+	fi
+
+override_dh_builddeb:
+# ref: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=892664
+	dh_builddeb -- -Zgzip

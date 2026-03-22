@@ -6,7 +6,7 @@ set -e
 
 case "$1" in
     purge|remove|abort-install|disappear)
-        deb-systemd-helper purge ec2-instance-connect
+        deb-systemd-helper purge ec2-instance-connect || true
         # Delete system user
         deluser --system --quiet ec2-instance-connect
         echo "Deleted system user ec2-instance-connect"

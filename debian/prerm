@@ -6,7 +6,15 @@ set -e
 
 case "$1" in
     remove|deconfigure)
-        modified=1
+        # Remove EC2 Instance Connect sshd override if present
+        if status --quiet ssh && [ -f /etc/init/ssh.override ] ; then
+            rm -f /etc/init/ssh.override
+            echo "sshd override removed, restarting daemon..."
+            initctl reload-configuration
+            stop ssh || true
+            start ssh
+        fi
+
         # Remove EC2 Instance Connect sshd override if present
         if [ -f /lib/systemd/system/ssh.service.d/ec2-instance-connect.conf ] ; then
             rm -f /lib/systemd/system/ssh.service.d/ec2-instance-connect.conf
@@ -14,10 +22,6 @@ case "$1" in
                 # There were no other overrides, clean up
                 rmdir /lib/systemd/system/ssh.service.d
             fi
-            modified=0
-        fi
-
-        if [ $modified -eq 0 ] ; then
             systemctl daemon-reload
             # Restart sshd
             echo "sshd override removed, restarting daemon..."

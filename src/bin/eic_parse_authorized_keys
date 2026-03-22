@@ -149,7 +149,7 @@ fi
 # Build the intermediate trust chain
 # We only need to verify the first intermediate certificate since it's signed by Amazon Root CA 1, which
 # is already trusted by the system (in /etc/ssl/certs).
-/usr/bin/cp "${tmpdir}/cert1.pem" "${tmpdir}/ca-trust.pem"
+/bin/cp "${tmpdir}/cert1.pem" "${tmpdir}/ca-trust.pem"
 
 if [ -d "${ca_path}" ] ; then
     subject=$("${OPENSSL}" x509 -noout -subject -in "${tmpdir}/cert${end}.pem" | /bin/sed -n -e 's/^.*CN[[:space:]]*=[[:space:]]*//p')
@@ -299,7 +299,7 @@ output=$(
 
             # Begin validation
             if [ -n "${instance_id}" ] && [ "${timestamp}" -ne 0 ] ; then
-                fingerprint=$(/usr/bin/ssh-keygen -lf "${pathprefix}-key" | cut -d ' ' -f 2) # Get only the actual fingerprint, ignore key size & source
+                fingerprint=$( { /usr/bin/ssh-keygen -lf "${pathprefix}-key" -E sha256 2>/dev/null || { /usr/bin/awk '{print $2}' "${pathprefix}-key" | /usr/bin/base64 -d | $OPENSSL dgst -sha256 -binary | $OPENSSL base64 -A | tr -d '=' | /usr/bin/xargs -r printf "SHA256:%s\n"; }; } | cut -d ' ' -f 2) # Get only the actual fingerprint, ignore key size & source
                 # If we were told to expect a specific key and this isn't it, skip it
                 if [ -z "${expected_key}" ] || [ "$fingerprint" = "${expected_key}" ] ; then
                     # Check instance ID matches & timestamp is still valid

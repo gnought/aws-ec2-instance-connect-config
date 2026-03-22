@@ -6,15 +6,24 @@ set -e
 
 case "$1" in
     configure)
-        EXEC_OVERRIDE='ExecStart=/usr/sbin/sshd -D -o "AuthorizedKeysCommand /usr/share/ec2-instance-connect/eic_run_authorized_keys %%u %%f" -o "AuthorizedKeysCommandUser ec2-instance-connect" $SSHD_OPTS'
+        EXEC_SYSTEMD_OVERRIDE='ExecStart=/usr/sbin/sshd -D -o "AuthorizedKeysCommand /usr/share/ec2-instance-connect/eic_run_authorized_keys %%u %%f" -o "AuthorizedKeysCommandUser ec2-instance-connect" $SSHD_OPTS'
+        EXEC_INIT_OVERRIDE='exec /usr/sbin/sshd -D -o "AuthorizedKeysCommand /usr/share/ec2-instance-connect/eic_run_authorized_keys" -o "AuthorizedKeysCommandUser ec2-instance-connect"'
         modified=1
+        upstart=0
 
         # If there is nothing in the AuthorizedKeysCommand field of sshd_config *and* nothing in any sshd override, add our config
         if ! grep -q '^[^#]*AuthorizedKeysCommand[[:blank:]]\+.*$' /etc/ssh/sshd_config ; then
             if ! grep -q '^[^#]*AuthorizedKeysCommandUser[[:blank:]]\+.*$' /etc/ssh/sshd_config ; then
                 if ! grep -q '^[^#]*AuthorizedKeysCommandRunAs[[:blank:]]\+.*$' /etc/ssh/sshd_config ; then
+                    if status --quiet ssh; then
+                        upstart=1
+                        # Upstart - check override file
+                        if ! grep -q "AuthorizedKeysCommand" /etc/init/ssh.override 2>/dev/null; then
+                            printf "%s" "${EXEC_INIT_OVERRIDE}" > /etc/init/ssh.override
+                            modified=0
+                        fi
                     # If systemd unit contains AKC don't override it
-                    if ! grep -q "AuthorizedKeysCommand" /lib/systemd/system/ssh.service ; then
+                    elif ! grep -q "AuthorizedKeysCommand" /lib/systemd/system/ssh.service ; then
                         can_modify=1
                         if [ -d /lib/systemd/system/ssh.service.d ] ; then
                             # If *any* override contains an ExecStart, don't override it
@@ -28,7 +37,7 @@ case "$1" in
                         fi
                         if [ $can_modify -eq 0 ] ; then
                             # Add our configuration
-                            printf "%s\n%s\n%s\n" "[Service]" "ExecStart=" "${EXEC_OVERRIDE}" > /lib/systemd/system/ssh.service.d/ec2-instance-connect.conf
+                            printf "%s\n%s\n%s\n" "[Service]" "ExecStart=" "${EXEC_SYSTEMD_OVERRIDE}" > /lib/systemd/system/ssh.service.d/ec2-instance-connect.conf
                             modified=0
                         fi
                     fi
@@ -37,9 +46,15 @@ case "$1" in
         fi
 
         if [ $modified -eq 0 ] ; then
-            systemctl daemon-reload
             echo "sshd override added, restarting daemon"
-            deb-systemd-invoke restart ssh.service
+            if [ $upstart -eq 0 ] ; then
+                systemctl daemon-reload
+                deb-systemd-invoke restart ssh.service
+            else
+                initctl reload-configuration
+                stop ssh || true
+                start ssh
+            fi
         fi
     ;;
 esac
