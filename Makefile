@@ -12,6 +12,7 @@ rpm:
 	./bin/make_rpm.sh $(version) $(release)
 
 bake = docker buildx bake --progress plain -f docker/docker-bake.hcl --provenance=false
+test = $(call bake) --set *.args.OS_VERSION=$(strip $(1)) --set *.output=type=cacheonly --set *.target=test
 
 docker-build-rpm:
 	$(call bake) rpm
@@ -28,3 +29,14 @@ clean:
 	rm -rf ./srpm_results
 	rm -rf ./rpm_results
 	rm -rf ./out
+
+test-deb:
+	$(call test, 14.04) deb
+	$(call test, 16.04) deb
+	$(call test, 18.04) deb
+	$(call test, 20.04) deb
+	$(call test, 22.04) deb
+
+test-rpm:
+	$(call test, 2) rpm
+	$(call test, 2023) rpm
