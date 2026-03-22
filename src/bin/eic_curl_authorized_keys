@@ -23,7 +23,7 @@ umask 077
 IMDS="http://169.254.169.254/latest/meta-data"
 
 log() {
-    /usr/bin/logger -i -p authpriv.info "${1}"
+    /usr/bin/logger -i -p authpriv.info -t ec2-instance-connect "${1}"
 }
 
 # cURL wrapper to ensure we always use the desired flags

@@ -23,7 +23,7 @@ set -e
 umask 077
 
 log() {
-    /usr/bin/logger -i -p authpriv.info "${1}"
+    /usr/bin/logger -i -p authpriv.info -t ec2-instance-connect "${1}"
 }
 
 # Failure reporting & exit
